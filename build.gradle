@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url "https://dl.bintray.com/nebula/gradle-plugins" }
+        repositories { jcenter() }
     }
 
     dependencies {
