@@ -94,6 +94,26 @@ subprojects {
     }
 
     publishing {
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/Liberty30/${project.name}")
+                credentials {
+                    username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+                    password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+        publications {
+            register("gpr") {
+                from(components["java"])
+            }
+        }
+    }
+
+
+    /*
+    publishing {
         publications {
             mavenJava(MavenPublication) {
                 groupId project.group
@@ -122,7 +142,7 @@ subprojects {
             }
         }
     }
-
+    */
     bintray {
         user = System.getenv('BINTRAY_USER')
         key = System.getenv('BINTRAY_API_KEY')
