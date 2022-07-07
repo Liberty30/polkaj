@@ -68,6 +68,14 @@ class ScaleCodecWriterSpec extends Specification {
         Hex.encodeHexString(act) == "ffffff00"
     }
 
+    def "Write unsigned 64-bit long"() {
+        when:
+        codec.writeUint64(2147483647L)
+        def act = buf.toByteArray()
+        then:
+        Hex.encodeHexString(act) == "ffffff7f00000000"
+    }
+
     def "Write byte array"() {
         expect:
         codec.writeAsList(Hex.decodeHex(value))
