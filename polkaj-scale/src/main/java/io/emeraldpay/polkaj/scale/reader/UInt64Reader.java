@@ -4,7 +4,7 @@ import io.emeraldpay.polkaj.scale.ScaleReader;
 import io.emeraldpay.polkaj.scale.ScaleCodecReader;
 import java.math.BigInteger;
 
-public class UInt64Reader implements ScaleReader<Long> {
+public class UInt64Reader implements ScaleReader<BigInteger> {
     public static final int SIZE_BYTES = 8;
 
     public static void reverse(byte[] value) {
@@ -17,9 +17,9 @@ public class UInt64Reader implements ScaleReader<Long> {
     }
 
     @Override
-    public Long read(ScaleCodecReader rdr) {
+    public BigInteger read(ScaleCodecReader rdr) {
         byte[] value = rdr.readByteArray(SIZE_BYTES);
         reverse(value);
-        return new BigInteger(1, value).longValue();
+        return new BigInteger(1, value);
     }
 }

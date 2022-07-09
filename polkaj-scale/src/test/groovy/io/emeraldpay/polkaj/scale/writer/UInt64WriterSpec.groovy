@@ -6,13 +6,13 @@ import spock.lang.Specification
 
 class UInt64WriterSpec extends Specification {
 
-    ULong64Writer writer = new ULong64Writer()
+    UInt64Writer writer = new UInt64Writer()
     ByteArrayOutputStream buf = new ByteArrayOutputStream()
     ScaleCodecWriter codec = new ScaleCodecWriter(buf)
 
     def "Writes small number"() {
         when:
-        def long x = 42L
+        def BigInteger x = 42
         codec.write(writer, x)
         def act = buf.toByteArray()
         then:
@@ -21,7 +21,7 @@ class UInt64WriterSpec extends Specification {
 
     def "Writes larger number"() {
         when:
-        def long x = 16777215L
+        def BigInteger x = 16777215
         codec.write(writer, x)
         def act = buf.toByteArray()
         then:
@@ -30,16 +30,17 @@ class UInt64WriterSpec extends Specification {
 
         def "Writes max number"() {
         when:
-        def long x = Long.MAX_VALUE
+        def BigInteger x = 18446744073709551615
         codec.write(writer, x)
         def act = buf.toByteArray()
         then:
-        Hex.encodeHexString(act) == "ffffffffffffff7f"
+        Hex.encodeHexString(act) == "ffffffffffffffff"
     }
 
     def "Writes optional existing"() {
         when:
-        codec.writeOptional(writer, 16777215L)
+        def BigInteger x = 16777215
+        codec.writeOptional(writer, x)
         def act = buf.toByteArray()
         then:
         Hex.encodeHexString(act) == "01ffffff0000000000"
@@ -67,22 +68,24 @@ class UInt64WriterSpec extends Specification {
         new ScaleCodecWriter(buf).write(writer, value)
         Hex.encodeHexString(buf.toByteArray()) == encoded
         where:
-        //MAX Integer is 0x3f_ff_ff_ff
         encoded     | value
-        "000000000000ff00"  | 0x00_ff_00_00_00_00_00_00
-        "0000000000ff0000"  | 0x00_00_ff_00_00_00_00_00
-        "00000000ff000000"  | 0x00_00_00_ff_00_00_00_00
-        "000000000f0f0f0f"  | 0x0f_0f_0f_0f_00_00_00_00
+        "0000000000000000"  | new BigInteger(0x00_00_00_00_00_00_00_00)
+        "000000000000ff00"  | new BigInteger(0x00_ff_00_00_00_00_00_00)
+        "0000000000ff0000"  | new BigInteger(0x00_00_ff_00_00_00_00_00)
+        "00000000ff000000"  | new BigInteger(0x00_00_00_ff_00_00_00_00)
+        "000000000f0f0f0f"  | new BigInteger(0x0f_0f_0f_0f_00_00_00_00)
 
-        "00000000ffffff00"  | 0x00_ff_ff_ff_00_00_00_00
-        "0000000000060000"  | 0x00_00_06_00_00_00_00_00
-        "0000000000030000"  | 0x00_00_03_00_00_00_00_00
-        "000000007d010000"  | 0x00_00_01_7d_00_00_00_00
+        "00000000ffffff00"  | new BigInteger(0x00_ff_ff_ff_00_00_00_00)
+        "0000000000060000"  | new BigInteger(0x00_00_06_00_00_00_00_00)
+        "0000000000030000"  | new BigInteger(0x00_00_03_00_00_00_00_00)
+        "000000007d010000"  | new BigInteger(0x00_00_01_7d_00_00_00_00)
+        "ffffffffffffffff"  | 0xff_ff_ff_ff_ff_ff_ff_ff
     }
 
     def "Error for negative number"() {
         when:
-        codec.write(writer, -1L)
+        def BigInteger x = -1
+        codec.write(writer, x)
         then:
         thrown(IllegalArgumentException)
     }

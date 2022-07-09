@@ -2,18 +2,18 @@ package io.emeraldpay.polkaj.scale.writer;
 
 import io.emeraldpay.polkaj.scale.ScaleWriter;
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter;
-import io.emeraldpay.polkaj.scale.reader.UInt128Reader;
+import io.emeraldpay.polkaj.scale.reader.UInt64Reader;
 
-import java.nio.ByteBuffer;
 import java.io.IOException;
+import java.math.BigInteger;
 
-public class ULong64Writer implements ScaleWriter<Long> {
+public class UInt64Writer implements ScaleWriter<BigInteger> {
     @Override
-    public void write(ScaleCodecWriter wrt, Long value) throws IOException {
-        if (value < 0) {
-            throw new IllegalArgumentException("Negative numbers are not supported by Uint128");
+    public void write(ScaleCodecWriter wrt, BigInteger value) throws IOException {
+        if (value.signum() < 0) {
+            throw new IllegalArgumentException("Negative numbers are not supported by Uint64");
         }
-        byte[] array = ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(value).array();
+        byte[] array = value.toByteArray();
         int pos = 0;
         // sometimes BigInteger gives an extra zero byte in the start of the array
         if (array[0] == 0) {
@@ -21,11 +21,11 @@ public class ULong64Writer implements ScaleWriter<Long> {
         }
         int len = array.length - pos;
         if (len > 8) {
-            throw new IllegalArgumentException("Value is to big for 64 bits. Has: " + len + " bits");
+            throw new IllegalArgumentException("Value is to big for 64 bits. Has: " + len * 8 + " bits");
         }
         byte[] encoded = new byte[8];
         System.arraycopy(array, pos, encoded, encoded.length - len, len);
-        UInt128Reader.reverse(encoded);
+        UInt64Reader.reverse(encoded);
         wrt.directWrite(encoded, 0, 8);
     }
 }

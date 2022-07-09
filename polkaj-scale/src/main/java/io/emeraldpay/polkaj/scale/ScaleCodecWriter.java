@@ -14,9 +14,9 @@ public class ScaleCodecWriter implements Closeable {
     public static final CompactBigIntWriter COMPACT_BIGINT = new CompactBigIntWriter();
     public static final UInt16Writer UINT16 = new UInt16Writer();
     public static final UInt32Writer UINT32 = new UInt32Writer();
+    public static final UInt64Writer UINT64 = new UInt64Writer();
     public static final UInt128Writer UINT128 = new UInt128Writer();
     public static final ULong32Writer ULONG32 = new ULong32Writer();
-    public static final ULong64Writer ULONG64 = new ULong64Writer();
     public static final BoolWriter BOOL = new BoolWriter();
     public static final BoolOptionalWriter BOOL_OPT = new BoolOptionalWriter();
 
@@ -97,8 +97,8 @@ public class ScaleCodecWriter implements Closeable {
         ULONG32.write(this, value);
     }
 
-    public void writeUint64(long value) throws IOException {
-        ULONG64.write(this, value);
+    public void writeUint64(BigInteger value) throws IOException {
+        UINT64.write(this, value);
     }
 
     public void writeUint128(BigInteger value) throws IOException {

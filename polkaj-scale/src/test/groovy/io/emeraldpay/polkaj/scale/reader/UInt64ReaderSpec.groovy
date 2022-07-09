@@ -13,7 +13,7 @@ class UInt64ReaderSpec extends Specification {
         def codec = new ScaleCodecReader(Hex.decodeHex("ffffff0000000000"))
         then:
         codec.hasNext()
-        codec.read(reader) == 16777215L
+        codec.read(reader) == 16777215
         !codec.hasNext()
     }
 
@@ -22,16 +22,16 @@ class UInt64ReaderSpec extends Specification {
         def codec = new ScaleCodecReader(Hex.decodeHex("2a00000000000000"))
         then:
         codec.hasNext()
-        codec.read(reader) == 42L
+        codec.read(reader) == 42
         !codec.hasNext()
     }
 
     def "Reads large number"() {
         when:
-        def codec = new ScaleCodecReader(Hex.decodeHex("ffffff7f00000000"))
+        def codec = new ScaleCodecReader(Hex.decodeHex("ffffffffffffffff"))
         then:
         codec.hasNext()
-        codec.read(reader) == 2147483647L
+        codec.read(reader) == 18446744073709551615
         !codec.hasNext()
     }
 
@@ -43,13 +43,11 @@ class UInt64ReaderSpec extends Specification {
         thrown(IndexOutOfBoundsException)
     }
 
-    def "Reads optional existing"() {
+    def "Reads with zero prefix"() {
         when:
-        def codec = new ScaleCodecReader(Hex.decodeHex("01ffffff0000000000"))
+        def codec = new ScaleCodecReader(Hex.decodeHex("ffffff0000000000"))
         then:
-        codec.hasNext()
-        codec.readOptional(reader) == Optional.of(16777215L)
-        !codec.hasNext()
+        codec.read(reader).toString() == "16777215"
     }
 
     def "Reads optional none"() {

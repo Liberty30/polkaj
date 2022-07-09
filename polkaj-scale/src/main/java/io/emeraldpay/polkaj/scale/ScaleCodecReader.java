@@ -98,7 +98,7 @@ public class ScaleCodecReader {
         return UINT32.read(this);
     }
 
-    public long readUint64() {
+    public BigInteger readUint64() {
         return UINT64.read(this);
     }
 
