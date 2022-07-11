@@ -2,7 +2,7 @@ package io.emeraldpay.polkaj.scale.writer;
 
 import io.emeraldpay.polkaj.scale.ScaleWriter;
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter;
-import io.emeraldpay.polkaj.scale.reader.UInt64Reader;
+import io.emeraldpay.polkaj.scale.reader.BigIntReader;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -20,12 +20,12 @@ public class UInt64Writer implements ScaleWriter<BigInteger> {
             pos++;
         }
         int len = array.length - pos;
-        if (len > 8) {
+        if (len > BigIntReader.UINT64_SIZE_BYTES) {
             throw new IllegalArgumentException("Value is to big for 64 bits. Has: " + len * 8 + " bits");
         }
-        byte[] encoded = new byte[8];
+        byte[] encoded = new byte[BigIntReader.UINT64_SIZE_BYTES];
         System.arraycopy(array, pos, encoded, encoded.length - len, len);
-        UInt64Reader.reverse(encoded);
-        wrt.directWrite(encoded, 0, 8);
+        BigIntReader.reverse(encoded);
+        wrt.directWrite(encoded, 0, BigIntReader.UINT64_SIZE_BYTES);
     }
 }
