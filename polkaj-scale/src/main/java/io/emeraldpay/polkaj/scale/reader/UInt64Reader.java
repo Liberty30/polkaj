@@ -4,22 +4,14 @@ import io.emeraldpay.polkaj.scale.ScaleReader;
 import io.emeraldpay.polkaj.scale.ScaleCodecReader;
 import java.math.BigInteger;
 
-public class UInt64Reader implements ScaleReader<BigInteger> {
-    public static final int SIZE_BYTES = 8;
+public class UInt64Reader extends BigIntReader implements ScaleReader<BigInteger> {
 
-    public static void reverse(byte[] value) {
-        for (int i = 0; i < value.length / 2; i++) {
-            int other = value.length - i - 1;
-            byte tmp = value[other];
-            value[other] = value[i];
-            value[i] = tmp;
-        }
-    }
+    BigIntReader bir = new BigIntReader();
 
     @Override
     public BigInteger read(ScaleCodecReader rdr) {
-        byte[] value = rdr.readByteArray(SIZE_BYTES);
-        reverse(value);
+        byte[] value = rdr.readByteArray(bir.UINT64_SIZE_BYTES);
+        bir.reverse(value);
         return new BigInteger(1, value);
     }
 }

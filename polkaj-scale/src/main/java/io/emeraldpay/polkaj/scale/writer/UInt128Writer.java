@@ -2,7 +2,7 @@ package io.emeraldpay.polkaj.scale.writer;
 
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter;
 import io.emeraldpay.polkaj.scale.ScaleWriter;
-import io.emeraldpay.polkaj.scale.reader.UInt128Reader;
+import io.emeraldpay.polkaj.scale.reader.BigIntReader;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -21,12 +21,12 @@ public class UInt128Writer implements ScaleWriter<BigInteger> {
             pos++;
         }
         int len = array.length - pos;
-        if (len > UInt128Reader.SIZE_BYTES) {
+        if (len > BigIntReader.UINT128_SIZE_BYTES) {
             throw new IllegalArgumentException("Value is to big for 128 bits. Has: " + len * 8 + " bits");
         }
-        byte[] encoded = new byte[UInt128Reader.SIZE_BYTES];
+        byte[] encoded = new byte[BigIntReader.UINT128_SIZE_BYTES];
         System.arraycopy(array, pos, encoded, encoded.length - len, len);
-        UInt128Reader.reverse(encoded);
-        wrt.directWrite(encoded, 0, UInt128Reader.SIZE_BYTES);
+        BigIntReader.reverse(encoded);
+        wrt.directWrite(encoded, 0, BigIntReader.UINT128_SIZE_BYTES);
     }
 }
