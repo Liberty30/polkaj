@@ -2,6 +2,7 @@ package io.emeraldpay.polkaj.scale
 
 import org.apache.commons.codec.binary.Hex
 import spock.lang.Specification
+import java.nio.charset.Charset;
 
 class ScaleCodecReaderSpec extends Specification {
 
@@ -20,6 +21,15 @@ class ScaleCodecReaderSpec extends Specification {
         then:
         codec.hasNext()
         codec.readUint16() == 42
+        !codec.hasNext()
+    }
+
+        def "Reads unsigned 64-bit long"() {
+        when:
+        def codec = new ScaleCodecReader(Hex.decodeHex("2a00000000000000"))
+        then:
+        codec.hasNext()
+        codec.readUint64() == 42
         !codec.hasNext()
     }
 
@@ -144,5 +154,13 @@ class ScaleCodecReaderSpec extends Specification {
         Hex.encodeHexString(new ScaleCodecReader(Hex.decodeHex(hex)).readByteArray(32)) == hex
         where:
         hex << ["bb931fd17f85fb26e8209eb7af5747258163df29a7dd8f87fa7617963fcfa1aa"]
+    }
+
+    def "Read"() {
+        when:
+        def codec = new ScaleCodecReader(Hex.decodeHex( "30" + "48656c6c6f20576f726c6421"))
+        def act = codec.readString(Charset.forName("ASCII"))
+        then:
+        act == "Hello World!"
     }
 }
