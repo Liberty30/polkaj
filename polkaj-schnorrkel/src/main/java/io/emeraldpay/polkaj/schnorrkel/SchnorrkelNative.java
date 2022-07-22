@@ -113,12 +113,16 @@ public class SchnorrkelNative extends Schnorrkel {
             extractJNI();
         } catch (IOException e) {
             System.err.println("Failed to extract JNI library from Jar file. " + e.getClass() + ":" + e.getMessage());
+            e.printStackTrace(System.err);
+            throw new IllegalStateException(e);
         }
         try {
             // load the native library
             System.loadLibrary(LIBNAME);
         } catch (UnsatisfiedLinkError e) {
             System.err.println("Failed to load native library. Polkaj Schnorrkel methods are unavailable. Error: " + e.getMessage());
+            e.printStackTrace(System.err);
+            throw new IllegalStateException(e);
         }
     }
 
