@@ -177,6 +177,8 @@ public class SchnorrkelNative extends Schnorrkel {
             usrPathsField.set(initializePathMethod.invoke(libraryPathProperty));
         } catch (Throwable e) {
             System.err.println("Unable to update usr_paths field. " + e.getClass() + ":" + e.getMessage());
+            e.printStackTrace(System.err);
+            throw new IllegalStateException(e);
         }
     }
 
