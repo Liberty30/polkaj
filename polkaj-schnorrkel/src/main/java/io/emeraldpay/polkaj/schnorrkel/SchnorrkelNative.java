@@ -1,12 +1,7 @@
 package io.emeraldpay.polkaj.schnorrkel;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.invoke.VarHandle;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
@@ -110,23 +105,15 @@ public class SchnorrkelNative extends Schnorrkel {
         try {
             // JVM needs native libraries to be loaded from filesystem, so first we need to extract
             // files for current OS into a temp dir
-            extractJNI();
+            initializeJNI();
         } catch (IOException e) {
             System.err.println("Failed to extract JNI library from Jar file. " + e.getClass() + ":" + e.getMessage());
             e.printStackTrace(System.err);
             throw new IllegalStateException(e);
         }
-        try {
-            // load the native library
-            System.loadLibrary(LIBNAME);
-        } catch (UnsatisfiedLinkError e) {
-            System.err.println("Failed to load native library. Polkaj Schnorrkel methods are unavailable. Error: " + e.getMessage());
-            e.printStackTrace(System.err);
-            throw new IllegalStateException(e);
-        }
     }
 
-    private static void extractJNI() throws IOException {
+    private static void initializeJNI() throws IOException {
         // define which of files bundled with Jar to extract
         String os = System.getProperty("os.name", "unknown").toLowerCase();
         if (os.contains("win")) {
@@ -146,6 +133,7 @@ public class SchnorrkelNative extends Schnorrkel {
         InputStream lib = Schnorrkel.class.getResourceAsStream(classpathFile);
         if (lib == null) {
             System.err.println("Library " + classpathFile + " is not found in the classpath");
+            System.loadLibrary(LIBNAME); //This is to load when the native library is not packaged in a jar, e.g. in CI
             return;
         }
         Path dir = Files.createTempDirectory(LIBNAME);
@@ -156,30 +144,7 @@ public class SchnorrkelNative extends Schnorrkel {
         target.toFile().deleteOnExit();
         dir.toFile().deleteOnExit();
 
-        // prepare new path to native libraries, including the directly with just extracted file
-        final String libraryPathProperty = "java.library.path";
-        String userLibs = System.getProperty(libraryPathProperty);
-        if (userLibs == null || "".equals(userLibs)) {
-            userLibs = dir.toAbsolutePath().toString();
-        } else {
-            userLibs = userLibs + File.pathSeparatorChar + dir.toAbsolutePath().toString();
-        }
-
-        // Update paths to search for native libraries
-        System.setProperty(libraryPathProperty, userLibs);
-        // But since it may be already processed and cached we need to update the current value
-        try {
-            MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(ClassLoader.class, MethodHandles.lookup());
-            VarHandle usrPathsField = lookup.findStaticVarHandle(ClassLoader.class,
-                    "usr_paths", String[].class);
-            MethodHandle initializePathMethod = lookup.findStatic(ClassLoader.class,
-                    "initializePath", MethodType.methodType(String[].class, String.class));
-            usrPathsField.set(initializePathMethod.invoke(libraryPathProperty));
-        } catch (Throwable e) {
-            System.err.println("Unable to update usr_paths field. " + e.getClass() + ":" + e.getMessage());
-            e.printStackTrace(System.err);
-            throw new IllegalStateException(e);
-        }
+        System.load(target.toAbsolutePath().toString()); //This is to load the native library extracted from the jar as a file, e.g. runtime
     }
 
 }
